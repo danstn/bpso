@@ -10,5 +10,7 @@ def square(vector):
 
 # Power function
 def pow(vector, power):
-    for i in range(power): 
-        np.multiply(vector, vector)
+    original = vector[:]
+    for i in range(power-1): 
+        vector = np.multiply(vector, original)
+    return vector

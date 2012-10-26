@@ -2,28 +2,27 @@ from Controllers import SwarmController
 from Models import SwarmModel
 
 from PSOTestSuite import *
-from CodeWarrior.CodeWarrior_suite import target
-from asyncore import write
 
 #===============================================================================
 # PROBLEM 1 SOLVING
 #===============================================================================
 
 # Problem parameters
-solution 		= square([4])
+solution 		= 750#pow([-3], 3)
 numOfParticles 	= 50
 dimensions 		= 1
-populations		= 100
+generations		= 100
+topology		= "lbest"
 
 # Swarm Initialization
 swarm = SwarmModel()
 sc = SwarmController(solution)
-sc.initSwarm(swarm, numOfParticles, dimensions)
+sc.initSwarm(swarm, topology, numOfParticles, dimensions)
 
 # Print
-for i in range(populations):
-	print "\nGeneration", i+1
-	print swarm._nbBestPosition, swarm._nbBestPositionFitness
+for i in range(generations):
 	sc.updateSwarm(swarm)
+	print "Generation", i+1,"\t-> BestPos:", swarm._bestPosition, "\tBestFitness:", swarm._bestPositionFitness
 
-print "Solution : %f BestPosition found : %f, BestPositionFitness %f" % (solution, swarm._nbBestPosition, swarm._nbBestPositionFitness)
+print (solution, swarm._bestPosition, swarm._bestPositionFitness)
+

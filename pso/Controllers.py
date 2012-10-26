@@ -1,5 +1,6 @@
 from Models import SwarmModel
 from Models import ParticleModel
+from Models import NeighbourhoodModel
 
 import numpy as np
 
@@ -29,7 +30,7 @@ class ParticleController:
         newFitness = np.linalg.norm(diff)
         # Save it as best position if its better than previous best
         if newFitness < model._fitness or model._fitness is None:
-            model._bestPosition = model._position
+            model._bestPosition = np.copy(model._position)
             model._fitness = newFitness
 
     def updatePosition(self, model):
@@ -49,37 +50,56 @@ class ParticleController:
 class SwarmController:    
 
     _particleController = None
+    _neighbourhoodController = None
     
     def __init__(self, solution):
         # Initialize ParticleController
         self._particleController = ParticleController(solution)
+        self._neighbourhoodController = NeighbourhoodController()
     
-    def initSwarm(self, swarm, nParticles = 1, dimensions = 1):
+    def initSwarm(self, swarm, topology = "gbest" , nParticles = 1, dimensions = 1):
         # Create Swarm
         for i in range(nParticles):
             newParticle = ParticleModel()
             self._particleController.initParticle(newParticle, dimensions)
             swarm._particles.append(newParticle)    
+        swarm._neighbourhoods = self._neighbourhoodController.initNeighbourhoods(swarm, topology)
         self.updateSwarmBestPosition(swarm)
+            
 
-    def updateSwarmBestPosition(self, swarm, topology = "gbest"):
+    def updateSwarmBestPosition(self, swarm):
         # Find swarm best position and save it in swarm
+        for nb in swarm._neighbourhoods:
+            self._neighbourhoodController.updateNeighbourhoodBestPosition(nb)
+            if swarm._bestPositionFitness is None or nb._bestPositionFitness < swarm._bestPositionFitness:
+                swarm._bestPositionFitness = nb._bestPositionFitness
+                swarm._bestPosition =  np.copy(nb._bestPosition)
+    
+    # Update all particles in the swarm 
+    def updateSwarm(self, swarm):
+        for curParticle in swarm._particles:
+            self._particleController.updatePosition(curParticle)
+            self._particleController.updateFitness(curParticle)
+        self.updateSwarmBestPosition(swarm)
+        
+        
+#===============================================================================
+# Neighborhood Controller
+#===============================================================================
+class NeighbourhoodController:    
+
+    def initNeighbourhoods(self, swarm, topology = "gbest"):
         if topology is "gbest":
-            for curParticle in swarm._particles:
-                if swarm._nbBestPositionFitness is None or curParticle._fitness < swarm._nbBestPositionFitness:
-                    swarm._nbBestPositionFitness = curParticle._fitness
-                    swarm._nbBestPosition = curParticle._bestPosition
-            # Save swarms best position in particles nbBestPosition 
-            for curParticle in swarm._particles:
-                curParticle._nbBestPosition = swarm._nbBestPosition
-        else:
+            return [NeighbourhoodModel(swarm._particles)]
+        elif topology is "lbest":
+            neighbourhoods = []
             for idx, curParticle in enumerate(swarm._particles):
                 previousParticle = None
                 nextParticle = None
                 if idx is 0:
                     # Previous is last, next is next
                     nextParticle = swarm._particles[idx + 1]
-                    previousParticle = swarm._particles[len(swarm._particles - 1)]
+                    previousParticle = swarm._particles[len(swarm._particles) - 1]
                 elif idx is len(swarm._particles) - 1:
                     # Previous is previous, next is first
                     nextParticle = swarm._particles[0]
@@ -88,17 +108,16 @@ class SwarmController:
                     # Previous is previous, next is next
                     nextParticle = swarm._particles[idx + 1]
                     previousParticle = swarm._particles[idx - 1]
+                neighbourhoods.append(NeighbourhoodModel([previousParticle, curParticle, nextParticle]))
+            return neighbourhoods
 
-                if nextParticle._fitness < curParticle._fitness and nextParticle._fitness < previousParticle._fitness:
-                    # Next best than previous and current
-                    curParticle.nbBestPosition = nextParticle._bestPosition
-                elif previousParticle._fitness < curParticle._fitness and previousParticle._fitness < nextParticle._fitness:
-                    # Previous is best than next and current
-                    curParticle.nbBestPosition = previousParticle._bestPosition
-
-    # Update all particles in the swarm 
-    def updateSwarm(self, swarm):
-        for curParticle in swarm._particles:
-            self._particleController.updatePosition(curParticle)
-            self._particleController.updateFitness(curParticle)
-        self.updateSwarmBestPosition(swarm)
+    def updateNeighbourhoodBestPosition(self, model):
+        # Find the best one in the NB
+        for curParticle in model._particles:
+            if model._bestPositionFitness is None or curParticle._fitness < model._bestPositionFitness:
+                model._bestPositionFitness = curParticle._fitness
+                model._bestPosition = np.copy(curParticle._bestPosition)
+        
+        # Save nb best position in particles nbBestPosition 
+        for curParticle in model._particles:
+            curParticle._nbBestPosition = model._bestPosition
