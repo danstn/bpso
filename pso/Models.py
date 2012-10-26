@@ -1,8 +1,11 @@
-'''
-Created on 26/10/2012
+#===============================================================================
+# This file contains representations of the following models:
+#  'Particle' - an atomic 
+#  'Swarm' - a set of particles
+#===============================================================================
 
-@author: cuva
-'''
+
+#----- Particle representation
 class ParticleModel:
     _position = None
     _velocity = None
@@ -10,6 +13,7 @@ class ParticleModel:
     _nbBestPosition = None
     _fitness = None
 
+#----- Swarm representation
 class SwarmModel:
     _particles = []
     _nbBestPosition = None

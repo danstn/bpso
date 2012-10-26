@@ -1,12 +1,11 @@
-'''
-Created on 26/10/2012
+from Models import SwarmModel
+from Models import ParticleModel
 
-@author: cuva
-'''
-
-from Models import *
 import numpy as np
 
+#===============================================================================
+# Particle controller
+#===============================================================================
 class ParticleController:
     _solution = None
     
@@ -33,23 +32,25 @@ class ParticleController:
             model._fitness = newFitness
 
     def updatePosition(self, model):
-        # VELOCITY NEEDS TO BE RANGED WITH VMAX
+        # VELOCITY NEEDS TO BE CONSTRICTED WITH VMAX
         # Get random coefficients e1 & e2
         c = 2.0
         e1 = np.random.rand()
         e2 = np.random.rand()
-        # Apply equation to each componnent of the velocity, add it to corresponding position component
+        # Apply equation to each component of the velocity, add it to corresponding position component
         for i, velocity in enumerate(model._velocity):
             velocity = velocity + c * e1 * (model._bestPosition[i] - model._position[i]) + c * e2 * (model._nbBestPosition[i] - model._position[i])
             model._position[i] += velocity
 
-
+#===============================================================================
+# Swarm Controller
+#===============================================================================
 class SwarmController:    
     _particleController = None
     def __init__(self, solution):
         # Initialise ParticuleController
         self._particleController = ParticleController(solution)
-
+    
     def initSwarm(self, swarm, nParticles = 1, dimensions = 1):
         # Create Swarm
         for i in range(nParticles):
@@ -92,7 +93,7 @@ class SwarmController:
                     # Previous is best than next and current
                     curParticle.nbBestPosition = previousParticle._bestPosition
 
-    # Update all particles in swarm 
+    # Update all particles in the swarm 
     def updateSwarm(self, swarm):
         for curParticle in swarm._particles:
             self._particleController.updatePosition(curParticle)

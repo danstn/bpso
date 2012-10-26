@@ -1,9 +1,7 @@
 from Controllers import SwarmController
 from Models import SwarmModel
-import numpy as np
 
-def square(vector):
-	return np.multiply(vector, vector)
+from PSOTestSuite import *
 
 swarm = SwarmModel()
 solution = square([2])
