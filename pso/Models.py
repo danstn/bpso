@@ -5,7 +5,7 @@
 #===============================================================================
 
 
-#----- Particle representation
+#---- Particle representation
 class ParticleModel:
     _position = None
     _velocity = None
@@ -13,7 +13,7 @@ class ParticleModel:
     _nbBestPosition = None
     _fitness = None
 
-#----- Swarm representation
+#---- Swarm representation
 class SwarmModel:
     _particles = []
     _nbBestPosition = None

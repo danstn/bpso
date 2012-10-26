@@ -7,6 +7,7 @@ import numpy as np
 # Particle controller
 #===============================================================================
 class ParticleController:
+    
     _solution = None
     
     def __init__(self, solution):
@@ -46,9 +47,11 @@ class ParticleController:
 # Swarm Controller
 #===============================================================================
 class SwarmController:    
+
     _particleController = None
+    
     def __init__(self, solution):
-        # Initialise ParticuleController
+        # Initialize ParticleController
         self._particleController = ParticleController(solution)
     
     def initSwarm(self, swarm, nParticles = 1, dimensions = 1):
