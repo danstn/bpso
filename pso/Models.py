@@ -27,3 +27,11 @@ class NeighbourhoodModel:
     
     def __init__(self, particles):
         self._particles = particles
+        
+class KnapsackSolutionModel:
+    _items = []
+    _knapsackSize = None
+    
+    def __init__(self, items, size):
+        self._items = items
+        self._knapsackSize = size

@@ -8,6 +8,46 @@ import numpy as np
 #===============================================================================
 # Particle controller
 #===============================================================================
+class ParticleController:
+    
+    _solution = None
+    
+    def __init__(self, solution):
+        self._solution = solution
+
+    def initParticle(self, model, dimensions):
+        # Create position array
+        model._position = np.random.uniform(0, 10, dimensions)
+        # Create Velocity array
+        model._velocity = np.random.uniform(0, 1, dimensions)
+        # Save best Position so far as current Position
+        model._bestPosition = model._position
+        self.updateFitness(model)
+
+    def updateFitness(self, model):
+        # Get Differences of vector
+        diff = np.subtract(model._position, self._solution)
+        # Get Norm of diff vector
+        newFitness = np.linalg.norm(diff)
+        # Save it as best position if its better than previous best
+        if newFitness < model._fitness or model._fitness is None:
+            model._bestPosition = np.copy(model._position)
+            model._fitness = newFitness
+
+    def updatePosition(self, model):
+        # VELOCITY NEEDS TO BE CONSTRICTED WITH VMAX
+        # Get random coefficients e1 & e2
+        c = 2.0
+        e1 = np.random.rand()
+        e2 = np.random.rand()
+        # Apply equation to each component of the velocity, add it to corresponding position component
+        for i, velocity in enumerate(model._velocity):
+            velocity = velocity + c * e1 * (model._bestPosition[i] - model._position[i]) + c * e2 * (model._nbBestPosition[i] - model._position[i])
+            model._position[i] += velocity
+
+#===============================================================================
+# Particle controller
+#===============================================================================
 class BinaryParticleController:
     
     _solution = None
@@ -57,46 +97,28 @@ class BinaryParticleController:
     def sigmoid(self, x):
         return 1.0/(1.0 + np.exp(-(x)))
 
-
 #===============================================================================
-# Particle controller
+# KnapsackParticle Controller
 #===============================================================================
-class ParticleController:
-    
+class KnapsackParticleController(BinaryParticleController):    
     _solution = None
     
     def __init__(self, solution):
         self._solution = solution
 
-    def initParticle(self, model, dimensions):
-        # Create position array
-        model._position = np.random.uniform(0, 10, dimensions)
-        # Create Velocity array
-        model._velocity = np.random.uniform(0, 1, dimensions)
-        # Save best Position so far as current Position
-        model._bestPosition = model._position
-        self.updateFitness(model)
-
     def updateFitness(self, model):
-        # Get Differences of vector
-        diff = np.subtract(model._position, self._solution)
-        # Get Norm of diff vector
-        newFitness = np.linalg.norm(diff)
-        # Save it as best position if its better than previous best
-        if newFitness < model._fitness or model._fitness is None:
-            model._bestPosition = np.copy(model._position)
-            model._fitness = newFitness
 
-    def updatePosition(self, model):
-        # VELOCITY NEEDS TO BE CONSTRICTED WITH VMAX
-        # Get random coefficients e1 & e2
-        c = 2.0
-        e1 = np.random.rand()
-        e2 = np.random.rand()
-        # Apply equation to each component of the velocity, add it to corresponding position component
-        for i, velocity in enumerate(model._velocity):
-            velocity = velocity + c * e1 * (model._bestPosition[i] - model._position[i]) + c * e2 * (model._nbBestPosition[i] - model._position[i])
-            model._position[i] += velocity
+        curWeight = curValue = 0
+        for idx, (price, weight) in enumerate(self._solution._items):
+            if model._position[idx] == 1:
+                curWeight += weight
+                curValue += price
+
+        if curWeight != 0 and curWeight < self._solution._knapsackSize and (1 / float(curValue) < model._fitness or model._fitness is None):
+            model._fitness = 1 / float(curValue) 
+            model._bestPosition = np.copy(model._position)
+            self._solution._resValue = curValue
+            self._solution._resWeight = curWeight 
 
 #===============================================================================
 # Swarm Controller
@@ -110,8 +132,12 @@ class SwarmController:
         # Initialize ParticleController
         if type is "continuous":
             self._particleController = ParticleController(solution)
-        else:
+        elif type is "binary":
             self._particleController = BinaryParticleController(solution)            
+        elif type is "knapsack":
+            self._particleController = KnapsackParticleController(solution)            
+
+        # Initialize NeighbourhoodController
         self._neighbourhoodController = NeighbourhoodController()
     
     def initSwarm(self, swarm, topology = "gbest" , nParticles = 1, dimensions = 1):
@@ -177,4 +203,4 @@ class NeighbourhoodController:
         
         # Save nb best position in particles nbBestPosition 
         for curParticle in model._particles:
-            curParticle._nbBestPosition = model._bestPosition
+            curParticle._nbBestPosition = np.copy(model._bestPosition)
