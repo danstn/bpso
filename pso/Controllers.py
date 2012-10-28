@@ -1,8 +1,62 @@
 from Models import SwarmModel
 from Models import ParticleModel
 from Models import NeighbourhoodModel
+import scipy.spatial as spp
 
 import numpy as np
+
+#===============================================================================
+# Particle controller
+#===============================================================================
+class BinaryParticleController:
+    
+    _solution = None
+    
+    def __init__(self, solution):
+        self._solution = solution
+
+    def initParticle(self, model, dimensions):
+        # Create position array
+        model._position = np.random.randint(2, size = dimensions)
+        # Create Velocity array
+        model._velocity = np.random.randint(2, size = dimensions)
+        # Save best Position so far as current Position
+        model._bestPosition = model._position
+        self.updateFitness(model)
+
+    def updateFitness(self, model):
+        # Get Differences of vector
+        hdist = spp.distance.hamming(model._position, self._solution)
+        # Save it as best position if its better than previous best
+        if hdist < model._fitness or model._fitness is None:
+            model._bestPosition = np.copy(model._position)
+            model._fitness = hdist
+
+    def updatePosition(self, model):
+        # VELOCITY NEEDS TO BE CONSTRICTED WITH VMAX
+        # Get random coefficients e1 & e2
+        c = 2.5
+        e1 = np.random.rand()
+        e2 = np.random.rand()
+        vmax = 6
+        # Apply equation to each component of the velocity, add it to corresponding position component
+        for i, velocity in enumerate(model._velocity):
+#            velocity = 0.72984 * (velocity + c * e1 * (model._bestPosition[i] - model._position[i]) + c * e2 * (model._nbBestPosition[i] - model._position[i]))
+            velocity = velocity + c * e1 * (model._bestPosition[i] - model._position[i]) + c * e2 * (model._nbBestPosition[i] - model._position[i])
+            if abs(velocity) > vmax and abs(velocity) is velocity: 
+                velocity = vmax
+            elif abs(velocity) > vmax:
+                velocity = -vmax
+            velocity = self.sigmoid(velocity)
+#            print "vel:", velocity
+            if np.random.rand(1) < velocity:
+                model._position[i] = 1
+            else:
+                model._position[i] = 0
+            
+    def sigmoid(self, x):
+        return 1.0/(1.0 + np.exp(-(x)))
+
 
 #===============================================================================
 # Particle controller
@@ -52,9 +106,12 @@ class SwarmController:
     _particleController = None
     _neighbourhoodController = None
     
-    def __init__(self, solution):
+    def __init__(self, type, solution):
         # Initialize ParticleController
-        self._particleController = ParticleController(solution)
+        if type is "continuous":
+            self._particleController = ParticleController(solution)
+        else:
+            self._particleController = BinaryParticleController(solution)            
         self._neighbourhoodController = NeighbourhoodController()
     
     def initSwarm(self, swarm, topology = "gbest" , nParticles = 1, dimensions = 1):
