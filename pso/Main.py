@@ -1,6 +1,6 @@
 from Controllers import SwarmController
-from Models import SwarmModel
-from Models import KnapsackSolutionModel
+from Models import *
+
 
 from PSOTestSuite import *
 
@@ -76,35 +76,106 @@ from PSOTestSuite import *
 #===============================================================================
 # PROBLEM 3 SOLVING / KNAPSACK
 #===============================================================================
+#
+#print "\n\nProblem 3 Solving / Combinatorial"
+#
+#
+#knapsackWeights = [(4, 12), (2, 2), (2, 1), (10, 4), (1, 1)]
+#knapsackSize = 15
+#solution = KnapsackSolutionModel(knapsackWeights, knapsackSize)
+#
+#popSize		 	= 10
+#dimensions 		= len(solution._items)
+#generations		= 100
+#topology		= "gbest"
+#
+## Swarm Initialization
+#swarm = SwarmModel()
+#sc = SwarmController("knapsack", solution)
+#sc.initSwarm(swarm, topology, popSize, dimensions)
+#
+## Print
+#fitness = 1
+#idx = 0
+#
+#def getKnapsackResult(items, bestPosition):
+#	res = ""
+#	for idx, (price, weight) in enumerate(items):
+#		if bestPosition[idx] == 1:
+#			if idx != 0:
+#				res += ", "
+#			res += "(%d $$, %d kg)" % (price, weight)
+#	return res
+#
+#for i in range(generations):
+#	sc.updateSwarm(swarm)
+#	if swarm._bestPositionFitness is not None and swarm._bestPositionFitness < fitness:
+#		fitness = swarm._bestPositionFitness
+#		idx = i
+#	print "Generation", i+1,"\t-> BestPos:", swarm._bestPosition, "\tBestFitness:", swarm._bestPositionFitness
+#
+#print "\n==================================================================="
+#print "Number of weights:\t", dimensions, "\nKnapsackSize:\t\t", knapsackSize, " kg"
+#print "Solution Found:\t\t(", solution._resValue, "$,", solution._resWeight, "kg)"
+#
+#print "Best Result:\t\t", swarm._bestPosition, " -> ", getKnapsackResult(solution._items, swarm._bestPosition)
+#print "Best Fitness:\t\t", swarm._bestPositionFitness, "in %d" % idx, "th iteration out of %d" % generations
+#print "Size left in knapsack: \t%d kg" % (knapsackSize - solution._resWeight)
+#print "==================================================================="
+#
 
-print "\n\nProblem 3 Solving / Combinatorial"
 
 
-knapsackWeights = [(4, 12), (2, 2), (2, 1), (10, 4), (1, 1)]
-knapsackSize = 15
-solution = KnapsackSolutionModel(knapsackWeights, knapsackSize)
+#===============================================================================
+# PROBLEM 4 SOLVING / TSP
+#===============================================================================
+
+print "\n\nProblem 4 Solving / Combinatorial - TSP"
+
+def generateFullGraph(graph):
+	result = {}
+	for (start, dest) in graph:
+		result[(dest, start)] = graph[(start, dest)]
+	graph.update(result)
+	return graph
+
+#graph = [(4, 12), (2, 2), (2, 1), (10, 4), (1, 1)]
+
+# g0
+graph0 = { ("B", "A") : 1, ("B", "C") : 1, ("C", "A") : 1} 	
+# g1
+graph1 = { ("B", "A") : 1, ("B", "C") : 10, ("C", "A") : 1} 
+# g2
+graph2 = { ("B", "A") : 1, ("B", "C") : 1, ("C", "D") : 1,  ("B", "D") : 1} 
+
+
+graph = generateFullGraph(graph2)
+numOfCities = 4
+print graph
+solution = TSPSolutionModel(graph, numOfCities, "A")
 
 popSize		 	= 10
-dimensions 		= len(solution._items)
+dimensions 		= len(solution._edges)
 generations		= 100
 topology		= "gbest"
 
 # Swarm Initialization
 swarm = SwarmModel()
-sc = SwarmController("knapsack", solution)
+sc = SwarmController("tsp", solution)
 sc.initSwarm(swarm, topology, popSize, dimensions)
 
 # Print
-fitness = 1
+fitness = 1000
 idx = 0
 
-def getKnapsackResult(items, bestPosition):
+def getTSPResult(solution):
 	res = ""
-	for idx, (price, weight) in enumerate(items):
-		if bestPosition[idx] == 1:
-			if idx != 0:
-				res += ", "
-			res += "(%d $$, %d kg)" % (price, weight)
+	print "\n", solution._bestPath
+	for idx, (start, dest) in enumerate(solution._bestPath):
+		if idx == 0:
+			res += start + " -> " + dest
+		else:
+			res += " -> %s" % dest
 	return res
 
 for i in range(generations):
@@ -115,12 +186,10 @@ for i in range(generations):
 	print "Generation", i+1,"\t-> BestPos:", swarm._bestPosition, "\tBestFitness:", swarm._bestPositionFitness
 
 print "\n==================================================================="
-print "Number of weights:\t", dimensions, "\nKnapsackSize:\t\t", knapsackSize, " kg"
-print "Solution Found:\t\t(", solution._resValue, "$,", solution._resWeight, "kg)"
+print "Number of edges:\t", dimensions / 2, "\nNum of cities:\t\t", numOfCities
 
-print "Best Result:\t\t", swarm._bestPosition, " -> ", getKnapsackResult(solution._items, swarm._bestPosition)
-print "Best Fitness:\t\t", swarm._bestPositionFitness, "in %d" % idx, "th iteration out of %d" % generations
-print "Size left in knapsack: \t%d kg" % (knapsackSize - solution._resWeight)
+print "Best Result:\t\t", swarm._bestPosition, " Path: ", getTSPResult(solution)
+print "Best Length:\t\t", swarm._bestPositionFitness, "in %d" % idx, " iteration out of %d" % generations
 print "==================================================================="
 
 

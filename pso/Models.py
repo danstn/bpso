@@ -35,3 +35,14 @@ class KnapsackSolutionModel:
     def __init__(self, items, size):
         self._items = items
         self._knapsackSize = size
+
+class TSPSolutionModel:
+    _edges       = {}
+    _startNode   = None
+    _numOfCities = None
+    _bestPath    = []
+    
+    def __init__(self, edges, numOfCities, startNode):
+        self._edges = edges
+        self._numOfCities = numOfCities
+        self._startNode = startNode

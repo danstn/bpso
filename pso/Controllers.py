@@ -98,10 +98,9 @@ class BinaryParticleController:
         return 1.0/(1.0 + np.exp(-(x)))
 
 #===============================================================================
-# KnapsackParticle Controller
+# Knapsack Particle Controller
 #===============================================================================
 class KnapsackParticleController(BinaryParticleController):    
-    _solution = None
     
     def __init__(self, solution):
         self._solution = solution
@@ -121,6 +120,76 @@ class KnapsackParticleController(BinaryParticleController):
             self._solution._resWeight = curWeight 
 
 #===============================================================================
+# TSP Particle Controller
+#===============================================================================
+class TSPParticleController(BinaryParticleController):    
+    
+    def __init__(self, solution):
+        self._solution = solution
+
+    def updateFitness(self, model):
+        curWeight = 0
+        curPath   = []
+        for idx, node in enumerate(self._solution._edges):
+            if model._position[idx] == 1:
+                curWeight += self._solution._edges[node]
+                curPath.append(node)
+        if self.validateNumOfNodes(curPath, self._solution._numOfCities):
+            try:
+                curPath = self.orderSolution(curPath, self._solution._startNode)
+                if curWeight < model._fitness or model._fitness is None:
+                    self._solution._fitness = model._fitness = curWeight 
+                    model._bestPosition = np.copy(model._position)
+                    self._solution._bestPath = curPath[:]
+            except:
+                print "raised"
+            
+    # ----- BLAH
+    def countEdges(self, graph):
+        result = {}
+        for (start, dest) in graph:
+            if start in result:
+                result[start] = result[start] + 1
+            else:
+                result[start] = 1
+        return result
+ 
+    def validateNumOfNodes(self, graph, numOfCities):
+        return (len(self.countEdges(graph)) == numOfCities)
+    
+    def orderSolution(self, graph, startNode, isFirst = True):
+        result = []
+        countMap = self.countEdges(graph)
+        curPostion = startNode
+        flag = True
+        subGraph = []
+        while flag is True:
+            flag = False
+            for (start, dest) in graph:
+                if curPostion is start:
+                    i = countMap[start]
+                    graph.remove((start, dest))
+                    while i > 1:
+                        subGraph.append(self.orderSolution(graph, start, False))
+                        i = i - 1
+                    for item in subGraph:
+                        if len(item) != 0 and item[len(item) - 1][1] is not startNode:
+                            result += item
+                            subGraph.remove(item)
+                    result.append((start, dest))
+                    curPostion = dest
+                    flag = True
+        for item in subGraph:
+            result += item
+        if isFirst:
+            if len(graph) != 0:
+                raise Exception("Invalid Graph")
+            for i, node in enumerate(result):
+                if node[1] != result[(i+1) % len(result)][0]:
+                    raise Exception("Invalid Graph")
+        return result
+
+#===============================================================================
 # Swarm Controller
 #===============================================================================
 class SwarmController:    
@@ -136,7 +205,9 @@ class SwarmController:
             self._particleController = BinaryParticleController(solution)            
         elif type is "knapsack":
             self._particleController = KnapsackParticleController(solution)            
-
+        elif type is "tsp":
+            self._particleController = TSPParticleController(solution)      
+                  
         # Initialize NeighbourhoodController
         self._neighbourhoodController = NeighbourhoodController()
     
