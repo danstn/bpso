@@ -8,7 +8,16 @@
 
 from PSOProblems import *
 
-#cpsoProblem 	= CPSOProblem()
-#cbpsoProblem 	= CBPSOProblem()
-knapsackProblem = BPSOKnapsackProblem()
+
+#cpsoProblem 	= CPSOProblem("lbest")
+cpsoProblem     = CPSOProblem("gbest")
+cpsoProblem.plotResults()
+
+#cbpsoProblem 	= CBPSOProblem("lbest")
+#cbpsoProblem.plotResults()
+
+#cbpsoProblem.plotResults()
+
+#knapsackProblem = BPSOKnapsackProblem()
+
 #tspProblem      = BPSOTSPProblem()

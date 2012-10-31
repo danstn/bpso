@@ -26,9 +26,9 @@ class ParticleController:
 
     def initParticle(self, model, dimensions):
         # Create position array
-        model._position = np.random.uniform(0, 10, dimensions)
+        model._position = np.random.uniform(-100, 100, dimensions)
         # Create Velocity array
-        model._velocity = np.random.uniform(0, 1, dimensions)
+        model._velocity = np.random.uniform(-100, 100, dimensions)
         # Save best Position so far as current Position
         model._bestPosition = model._position
         self.updateFitness(model)
