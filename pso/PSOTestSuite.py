@@ -1,12 +1,17 @@
 #===============================================================================
-# PSO Test functions
+# @author: Daniel V. Stankevich
+# @organization: RMIT, School of Computer Science, 2012
+#
+# PSO Simple Test Functions
 #===============================================================================
 
 import numpy as np
 
+
 # Square function
 def square(vector):
     return np.multiply(vector, vector)
+
 
 # Power function
 def pow(vector, power):
