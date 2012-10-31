@@ -1,9 +1,21 @@
 #===============================================================================
-# This file contains representations of the following models:
-#  'Particle' - an atomic 
-#  'Swarm' - a set of particles
+# @author: Daniel V. Stankevich
+# @organization: RMIT, School of Computer Science, 2012
+#
+#
+# This package contains representations of the following models:
+#  'Particle'            - an atomic element
+#  'Swarm'               - a set of particles
+#  'Neighbourhood'       - particles topology
+#  'KnapsackSolution'    - representation for solution of the problem
+#  'TSPSolution'         - representation for solution of the problem
 #===============================================================================
 
+
+
+#===============================================================================
+#                             GENERIC MODELS
+#===============================================================================
 
 #---- Particle representation
 class ParticleModel:
@@ -15,27 +27,36 @@ class ParticleModel:
 
 #---- Swarm representation
 class SwarmModel:
-    _particles      = []
-    _neighbourhoods = []
-    _bestPosition   = None
-    _bestPositionFitness = None
+    _particles              = []
+    _neighbourhoods         = []
+    _bestPosition           = None
+    _bestPositionFitness    = None
     
+#---- Neighbourhood representation    
 class NeighbourhoodModel:
-    _particles = []
-    _bestPosition = None
-    _bestPositionFitness = None
+    _particles              = []
+    _bestPosition           = None
+    _bestPositionFitness    = None
     
     def __init__(self, particles):
         self._particles = particles
-        
+
+
+
+#===============================================================================
+#                            PROBLEM SPECIFIC MODELS
+#===============================================================================
+
+#---- Knapsack Problem Solution representation        
 class KnapsackSolutionModel:
-    _items = []
-    _knapsackSize = None
+    _items          = [] 
+    _knapsackSize   = None
     
     def __init__(self, items, size):
         self._items = items
         self._knapsackSize = size
 
+#---- TSP Problem Solution representation
 class TSPSolutionModel:
     _edges       = {}
     _startNode   = None

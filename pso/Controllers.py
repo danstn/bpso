@@ -1,8 +1,8 @@
 from Models import SwarmModel
 from Models import ParticleModel
 from Models import NeighbourhoodModel
-import scipy.spatial as spp
 
+import scipy.spatial as spp
 import numpy as np
 
 #===============================================================================
@@ -105,6 +105,16 @@ class KnapsackParticleController(BinaryParticleController):
     def __init__(self, solution):
         self._solution = solution
 
+    def initParticle(self, model, dimensions):
+        # Create position array
+        model._position = np.random.randint(2, size = dimensions)
+        # Create Velocity array
+        model._velocity = np.random.randint(2, size = dimensions)
+        # Save best Position so far as current Position
+        model._bestPosition = np.zeros((dimensions,), dtype = np.int)
+        print model._bestPosition
+        self.updateFitness(model)
+
     def updateFitness(self, model):
 
         curWeight = curValue = 0
@@ -113,11 +123,11 @@ class KnapsackParticleController(BinaryParticleController):
                 curWeight += weight
                 curValue += price
 
-        if curWeight != 0 and curWeight < self._solution._knapsackSize and (1 / float(curValue) < model._fitness or model._fitness is None):
+        if curWeight != 0 and curWeight <= self._solution._knapsackSize and (1 / float(curValue) < model._fitness or model._fitness is None):
             model._fitness = 1 / float(curValue) 
             model._bestPosition = np.copy(model._position)
-            self._solution._resValue = curValue
-            self._solution._resWeight = curWeight 
+#            self._solution._resValue = curValue
+#            self._solution._resWeight = curWeight 
 
 #===============================================================================
 # TSP Particle Controller
@@ -138,11 +148,11 @@ class TSPParticleController(BinaryParticleController):
             try:
                 curPath = self.orderSolution(curPath, self._solution._startNode)
                 if curWeight < model._fitness or model._fitness is None:
-                    self._solution._fitness = model._fitness = curWeight 
+                    model._fitness = curWeight
                     model._bestPosition = np.copy(model._position)
-                    self._solution._bestPath = curPath[:]
+#                    self._solution._bestPath = curPath[:]
             except:
-                print "raised"
+                pass
             
     # ----- BLAH
     def countEdges(self, graph):
@@ -268,10 +278,10 @@ class NeighbourhoodController:
     def updateNeighbourhoodBestPosition(self, model):
         # Find the best one in the NB
         for curParticle in model._particles:
-            if model._bestPositionFitness is None or curParticle._fitness < model._bestPositionFitness:
+            if model._bestPositionFitness is None or (curParticle._fitness < model._bestPositionFitness and curParticle._fitness is not None):
                 model._bestPositionFitness = curParticle._fitness
                 model._bestPosition = np.copy(curParticle._bestPosition)
-        
+
         # Save nb best position in particles nbBestPosition 
         for curParticle in model._particles:
             curParticle._nbBestPosition = np.copy(model._bestPosition)
