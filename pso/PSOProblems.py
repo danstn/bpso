@@ -35,11 +35,13 @@ class CPSOProblem(PSOProblem):
     def __init__(self):
         print "\nProblem Solving: Continuous"
         # Problem parameters
-        solution        = 763
+        solution1 = [42, 12, 490, -20]
+        solution2 = [42]
+        solution = solution2
         numOfParticles  = 50
-        dimensions      = 1
+        dimensions      = len(solution)
         generations     = 100
-        topology        = "lbest"
+        topology        = "gbest"
         
         # Swarm Initialization
         swarm   = SwarmModel()
@@ -48,11 +50,17 @@ class CPSOProblem(PSOProblem):
         
         # Results Output
         for i in range(generations):
-            sc.updateSwarm(swarm)
             print "Generation", i+1,"\t-> BestPos:", swarm._bestPosition, "\tBestFitness:", swarm._bestPositionFitness
+            sc.updateSwarm(swarm)
         
-        print (solution, swarm._bestPosition, swarm._bestPositionFitness)
+#        print solution, swarm._bestPosition, swarm._bestPositionFitness
 
+        print "\n==================================================================="
+        print "Dimensions:\t", dimensions
+        print "Solution:\t", np.array(solution)
+        print "Best Result:\t", swarm._bestPosition
+        print "Best Fitness:\t", swarm._bestPositionFitness
+        print "==================================================================="
 
 
 #---- Continuous Binary PSO Problem
@@ -66,11 +74,11 @@ class CBPSOProblem(PSOProblem):
         solution3 = [0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1]
         solution4 = [1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1]
         solution5 = [0, 1, 1, 0]
-        solution  = solution5
+        solution  = solution2
 
         popSize     = 50
         dimensions  = len(solution)
-        generations = 10
+        generations = 100
         topology    = "gbest"
         
         # Swarm Initialization
@@ -86,13 +94,13 @@ class CBPSOProblem(PSOProblem):
             if swarm._bestPositionFitness < fitness:
                 fitness = swarm._bestPositionFitness
                 idx = i
-            print "Generation", i+1,"\t-> BestPos:", swarm._bestPosition, "\tBestFitness:", swarm._bestPositionFitness
+            print "Generation", i+1,"\t-> BestPos:", swarm._bestPosition, "\tBestFitness:", 1 - swarm._bestPositionFitness
         
         print "\n==================================================================="
         print "Dimensions:\t", dimensions
         print "Solution:\t", np.array(solution)
         print "Best Result:\t", swarm._bestPosition
-        print "Best Fitness:\t", swarm._bestPositionFitness, "in %d" % idx, " iteration out of %d" % generations
+        print "Best Fitness:\t", 1 - swarm._bestPositionFitness, "in %d" % idx, " iteration out of %d" % generations
         print "Number of bits out of place: %d" % (dimensions * swarm._bestPositionFitness)
         print "==================================================================="
         

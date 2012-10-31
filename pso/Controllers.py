@@ -1,3 +1,12 @@
+#===============================================================================
+# @author: Daniel V. Stankevich
+# @organization: RMIT, School of Computer Science, 2012
+#
+#
+# This package contains all PSO controllers
+#===============================================================================
+
+
 from Models import SwarmModel
 from Models import ParticleModel
 from Models import NeighbourhoodModel
@@ -46,7 +55,7 @@ class ParticleController:
             model._position[i] += velocity
 
 #===============================================================================
-# Particle controller
+# Binary Particle controller
 #===============================================================================
 class BinaryParticleController:
     
@@ -112,7 +121,7 @@ class KnapsackParticleController(BinaryParticleController):
         model._velocity = np.random.randint(2, size = dimensions)
         # Save best Position so far as current Position
         model._bestPosition = np.zeros((dimensions,), dtype = np.int)
-        print model._bestPosition
+        #print model._bestPosition
         self.updateFitness(model)
 
     def updateFitness(self, model):
@@ -126,8 +135,8 @@ class KnapsackParticleController(BinaryParticleController):
         if curWeight != 0 and curWeight <= self._solution._knapsackSize and (1 / float(curValue) < model._fitness or model._fitness is None):
             model._fitness = 1 / float(curValue) 
             model._bestPosition = np.copy(model._position)
-#            self._solution._resValue = curValue
-#            self._solution._resWeight = curWeight 
+            #self._solution._resValue = curValue
+            #self._solution._resWeight = curWeight 
 
 #===============================================================================
 # TSP Particle Controller
@@ -150,11 +159,10 @@ class TSPParticleController(BinaryParticleController):
                 if curWeight < model._fitness or model._fitness is None:
                     model._fitness = curWeight
                     model._bestPosition = np.copy(model._position)
-#                    self._solution._bestPath = curPath[:]
+                    #self._solution._bestPath = curPath[:]
             except:
                 pass
             
-    # ----- BLAH
     def countEdges(self, graph):
         result = {}
         for (start, dest) in graph:
