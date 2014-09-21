@@ -3,12 +3,17 @@ BPSO
 
 Binary Particle Swarm Optimizer implementation in Python.
 
-Dependencies:
+## Usage
 
-- Numpy
-- Scipy
-- matplotlib
+    $ python pso/Main.py
 
+## Dependencies
+    
+  - Numpy
+  - Scipy
+  - matplotlib
+
+## Details
 
 Particle swarm formula in used:
 `Vid = Vid + Phi(Pid - Xid) + Phi(Pgd - Xid)`
